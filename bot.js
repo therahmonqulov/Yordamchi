@@ -180,7 +180,7 @@ bot.on('message', async (msg) => {
         // Start komandasi uchun
         if (msg.text === '/start') {
             await bot.sendMessage(msg.chat.id,
-                `👮🏻‍♂️ Salom @${msg.from.username || msg.from.first_name}!\n\nMen guruhdagi vazifalarim:\n♻️ - Reklama havolalarini tozalash\n🔞 - 18+ kontentga qarshi (rasim, sticker, gif)\n🗣 - So'kinuvchilarga 10 daqiqalik taqiq\n\n⚠️ Diqqat! Menga to'liq adminlik huquqini berishingiz kerak.`,
+                `👮🏻‍♂️ Salom @${msg.from.username || msg.from.first_name}!\n\nMen guruhdagi vazifalarim:\n♻️ - Reklama havolalarini tozalash\n🔞 - 18+ kontentga qarshi (rasim, sticker, gif)\n🗣 - So'kinuvchilarga 10 daqiqalik taqiq\n\n⚠️ Diqqat! Menga to'liq adminlik huquqlarini berishingiz kerak.`,
                 startButtons
             );
         }
@@ -340,16 +340,6 @@ bot.on('my_chat_member', async (msg) => {
         console.error("⛔ Xatolik yuz berdi:", err.message);
     }
 });
-
-
-// Botni guruhga admin qilish yoki adminlikni olib tashlash
-// bot.on('my_chat_member', async (msg) => {
-//     if (msg.new_chat_member.status === 'administrator') {
-//         await bot.sendMessage(msg.chat.id, "✅ Men guruh admini bo'ldim. Ishga tayyorman!");
-//     } else if (msg.new_chat_member.status === 'member') {
-//         await bot.sendMessage(msg.chat.id, "⚠️ Menga to'liq adminlik huquqini berishingiz kerak!");
-//     }
-// });
 
 console.log('🤖 Bot ishga tushdi...');
 
