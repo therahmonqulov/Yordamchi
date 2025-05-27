@@ -328,7 +328,7 @@ bot.on('my_chat_member', async (msg) => {
             if (missingPerms.length === 0) {
                 await bot.sendMessage(chatId, "✅ Men to‘liq admin huquqlariga egaman. Ishga tayyorman!");
             } else {
-                await bot.sendMessage(chatId, `⚠️ Iltimos, menga quyidagi admin huquqlarini bering:\n\n${missingPerms.join('\n')}`);
+                await bot.sendMessage(chatId, `⚠️ Iltimos, menga quyidagi admin huquqlarini bering:\n(bu guruhni to‘liq boshqarishim uchun kerak)\n${missingPerms.join('\n')}`);
             }
         } else if (botStatus === 'member') {
             // Oddiy a’zo sifatida qo‘shilgan
