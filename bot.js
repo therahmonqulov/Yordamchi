@@ -11,7 +11,7 @@ const forbiddenWords = [
     "jalab", "jalap", "xuet", "amdan", "dalbayop", "haromi", "sex", "jallab", "jala", "ambosh", "sikib", "kot",
     "kotbosh", "dalbayopmisiz", "nahuy", "qotoq", "qo'toq", "blyat", "qotoqbosh", "suka", "naxuy", "naxui",
     "og'zingga olgin", "poxuy", "pshnx", "pshnyx", "xaramxor", "haramxor", "poxui", "jalla", "bilat", "pizda",
-    "pizdes", "pizdets", "pizdetz", "pidaraz", "xuy", "dalban", "dalpan", "yiban", "haramhor", "horomhor",
+    "pizdes", "pizdets", "pizdetz", "pidaraz", "xuy", "dalban", "dalpan", "yiban", "haramhor", "horomhor","qottoq",
     "haromdan bolgan", "xaromi", "xaromdan", "chumo", "chumolik", "sikaman", "gandon", "gandonlik", "xuyet",
     "ittaraman", "seks", "dalbayob", "dalbayoblik", "dalbayobmisan", "xoromxor", "horomxor", "ske", "dnx", "naxxuy",
     "nahhuy", "naxhuy", 
@@ -28,11 +28,11 @@ const exceptionWords = [
 const startButtons = {
     reply_markup: {
         inline_keyboard: [
-            [{ text: "➕ GURUHGA QO'SHISH", url: "http://t.me/Nazoratchimanbot?startgroup=new&admin=all" }],
+            [{ text: "➕ GURUHGA QO'SHISH", url: "https://t.me/Nazoratchimanbot?startgroup=true&admin=can_manage_chat+can_delete_messages+can_restrict_members+can_invite_users+can_pin_messages+can_manage_video_chats+can_promote_members+can_change_info" }],
             [{ text: "📈 Bot statikasi", callback_data: "stats" }, { text: "📜 Bot buyruqlari", callback_data: "commands" }]
         ]
     }
-};
+}
 
 // Callback query (tugmalar uchun)
 bot.on('callback_query', async (callbackQuery) => {
@@ -270,8 +270,9 @@ bot.onText(/\/clear/, async (msg) => {
         if (msg.chat.type === 'group' || msg.chat.type === 'supergroup') {
             // agar admin bolsa:
             if (chatMember.status === 'administrator' || chatMember.status === 'creator') {
-                await bot.sendMessage(chatId, "⚡️ Xabarlarni o'chirishni boshlayapman (so'nggi 10000 ta xabar).");
+                await bot.sendMessage(chatId, "⚡️ Xabarlarni o'chirishni boshlayapman.");
                 let lastMessageId = msg.message_id;
+                // oxirgi 10,000 xabarni o'chirish
                 for (let i = lastMessageId; i > lastMessageId - 10000; i--) {
                     try {
                         await bot.deleteMessage(chatId, i);
@@ -290,14 +291,65 @@ bot.onText(/\/clear/, async (msg) => {
     }
 });
 
-// Botni guruhga admin qilish yoki adminlikni olib tashlash
 bot.on('my_chat_member', async (msg) => {
-    if (msg.new_chat_member.status === 'administrator') {
-        await bot.sendMessage(msg.chat.id, "✅ Men guruh admini bo'ldim. Ishga tayyorman!");
-    } else if (msg.new_chat_member.status === 'member') {
-        await bot.sendMessage(msg.chat.id, "⚠️ Menga to'liq adminlik huquqini berishingiz kerak!");
+    try {
+        const chat = msg.chat;
+        const chatId = chat.id;
+        const botStatus = msg.new_chat_member.status;
+        const chatType = chat.type; // 'group', 'supergroup', 'channel', 'private'
+
+        // Faqat guruhlarda ishlasin
+        if (chatType !== 'group' && chatType !== 'supergroup') return;
+
+        // Kerakli admin ruxsatlari
+        const requiredPermissions = {
+            can_manage_chat: 'Chatni boshqarish',
+            can_delete_messages: 'Xabarlarni o‘chirish',
+            can_restrict_members: 'Foydalanuvchilarni cheklash',
+            can_invite_users: 'Foydalanuvchilarni taklif qilish',
+            can_pin_messages: 'Xabarlarni biriktirish',
+            can_manage_video_chats: 'Videochatlarni boshqarish',
+            can_promote_members: 'Adminlarni tayinlash',
+            can_change_info: 'Guruh ma’lumotlarini o‘zgartirish'
+        };
+
+        if (botStatus === 'administrator') {
+            // Bot administrator bo‘ldi – huquqlarni tekshiramiz
+            const botInfo = await bot.getMe();
+            const botMember = await bot.getChatMember(chatId, botInfo.id);
+
+            let missingPerms = [];
+            for (const [key, label] of Object.entries(requiredPermissions)) {
+                if (!botMember[key]) {
+                    missingPerms.push(`• ${label}`);
+                }
+            }
+
+            if (missingPerms.length === 0) {
+                await bot.sendMessage(chatId, "✅ Men to‘liq admin huquqlariga egaman. Ishga tayyorman!");
+            } else {
+                await bot.sendMessage(chatId, `⚠️ Iltimos, menga quyidagi admin huquqlarini bering:\n\n${missingPerms.join('\n')}`);
+            }
+        } else if (botStatus === 'member') {
+            // Oddiy a’zo sifatida qo‘shilgan
+            await bot.sendMessage(chatId, "⚠️ Iltimos, menga to‘liq admin huquqlarini bering. Aks holda, men guruhni nazorat qila olmayman.");
+        } else if (botStatus === 'kicked') {
+            console.log(`❌ Bot ${chatId} guruhidan chiqarib yuborildi.`);
+        }
+    } catch (err) {
+        console.error("⛔ Xatolik yuz berdi:", err.message);
     }
 });
+
+
+// Botni guruhga admin qilish yoki adminlikni olib tashlash
+// bot.on('my_chat_member', async (msg) => {
+//     if (msg.new_chat_member.status === 'administrator') {
+//         await bot.sendMessage(msg.chat.id, "✅ Men guruh admini bo'ldim. Ishga tayyorman!");
+//     } else if (msg.new_chat_member.status === 'member') {
+//         await bot.sendMessage(msg.chat.id, "⚠️ Menga to'liq adminlik huquqini berishingiz kerak!");
+//     }
+// });
 
 console.log('🤖 Bot ishga tushdi...');
 
