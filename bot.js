@@ -21,7 +21,7 @@ const forbiddenWords = [
 ];
 
 const exceptionWords = [
-    "jamshid" // misol uchun
+    "Rustam" // misol uchun
 ];
 
 // Start tugmalari
